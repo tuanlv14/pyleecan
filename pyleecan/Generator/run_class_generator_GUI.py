@@ -1,33 +1,34 @@
-from os.path import isfile
-from sys import argv, exit
+import sys
+from os.path import dirname, abspath, join
+
+# Add the parent directory to sys.path
+current_dir = dirname(abspath(__file__))
+parent_dir = dirname(dirname(current_dir))
+sys.path.insert(0, parent_dir)
+
+try:
+    from pyleecan.GUI.Dialog.DClassGenerator.DClassGenerator import DClassGenerator
+except ImportError:
+    print("Error: Unable to import pyleecan. Make sure it's installed or the path is correct.")
+    sys.exit(1)
 
 from qtpy.QtWidgets import QApplication
 
-try:  # Import if pyleecan is installed with pip
-    from ..GUI.Dialog.DClassGenerator.DClassGenerator import DClassGenerator
-except ImportError:  # Import for dev version
-    exec(
-        "from pyleecan.GUI.Dialog.DClassGenerator.DClassGenerator import DClassGenerator"
-    )
-
-## UPDATE paths to prefered applications
-# Path to prefered application to edit python files
+# UPDATE paths to preferred applications
+# Path to preferred application to edit python files
 PATH_EDITOR_PY = "notepad.exe"
-# Path to prefered application to edit csv files
+# Path to preferred application to edit csv files
 PATH_EDITOR_CSV = "notepad.exe"
 
-
 def run_class_generator(argv):
-    # Script to be used to test in dev
-    a = QApplication(argv)
+    app = QApplication(argv)
 
     # Machine Setup Widget
-    c = DClassGenerator(path_editor_py=PATH_EDITOR_PY, path_editor_csv=PATH_EDITOR_CSV)
+    class_generator = DClassGenerator(path_editor_py=PATH_EDITOR_PY, path_editor_csv=PATH_EDITOR_CSV)
 
-    c.show()
+    class_generator.show()
 
-    exit(a.exec_())
-
+    return app.exec_()
 
 if __name__ == "__main__":
-    run_class_generator(argv)
+    sys.exit(run_class_generator(sys.argv))
