@@ -8,6 +8,8 @@ from re import match
 from subprocess import PIPE, Popen
 from json import load as jload
 import subprocess
+import sys
+from qtpy import QtCore, QtWidgets, QT_API
 from ..definitions import (
     GEN_DIR,
     GUI_DIR,
@@ -16,6 +18,8 @@ from ..definitions import (
     PACKAGE_NAME,
     DEFAULT_FONT,
 )
+
+print(f"Detected Qt API: {QT_API}")
 from ..Generator import TAB, TAB2, TAB3
 from ..Functions.short_filepath import short_filepath
 
@@ -539,15 +543,31 @@ def ui_to_py(path, file_name):
     path_in = join(path, file_name)  # Input file
     path_out = join(path, "Ui_" + file_name[:-3] + ".py")  # Output file
 
+    if QT_API == 'PyQt5':
+        uic_command = 'pyuic5'
+    elif QT_API == 'PySide2':
+        uic_command = 'pyside2-uic'
+    elif QT_API == 'PyQt6':
+        uic_command = 'pyuic6'
+    elif QT_API == 'PySide6':
+        uic_command = 'pyside6-uic'
+    else:
+        raise ValueError(f"Unsupported Qt API: {QT_API}. Supported APIs are 'PyQt5', 'PySide2', 'PyQt6', and 'PySide6'.")
+
     print(
-        "qtpy-uic "
+        f"{uic_command} "
         + short_filepath(path_in, length=40)
         + '" -o "'
         + short_filepath(path_out, length=40)
         + '"'
     )
-    # system("qtpy-uic " + path_in + '" -o "' + path_out + '"')
-    subprocess.call(["qtpy-uic", path_in, "-o", path_out])
+
+    try:
+        subprocess.call([uic_command, path_in, "-o", path_out])
+    except FileNotFoundError:
+        print(f"Error: {uic_command} not found. Make sure it's installed and in your PATH.")
+        sys.exit(1)
+
     # Remove header part of the generated file (to avoid "commit noise")
     with open(path_out, "r") as py_file:
         data = py_file.read().splitlines(True)
