@@ -6,7 +6,20 @@ from logging import getLogger
 from os import makedirs
 from os.path import abspath, dirname, isdir, isfile, join, normpath, realpath
 
-from matplotlib.cm import get_cmap, register_cmap
+# from matplotlib.cm import get_cmap, register_cmap
+import matplotlib
+
+# Check matplotlib version
+if tuple(map(int, matplotlib.__version__.split("."))) >= (3, 5):
+    # For matplotlib 3.5 and newer
+    from matplotlib import colormaps
+    from matplotlib.cm import get_cmap
+    register_cmap = colormaps.register
+else:
+    # For older versions of matplotlib
+    from matplotlib.cm import get_cmap, register_cmap
+
+
 from matplotlib.colors import ListedColormap
 from matplotlib import font_manager
 from numpy import load as np_load

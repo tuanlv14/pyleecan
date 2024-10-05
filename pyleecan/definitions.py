@@ -6,7 +6,22 @@ from json import load
 from logging import getLogger
 from os.path import abspath, dirname, basename, join, normpath, realpath
 from matplotlib.colors import ListedColormap
-from matplotlib.cm import get_cmap, register_cmap
+
+# from matplotlib.cm import get_cmap, register_cmap
+import matplotlib
+
+# Check matplotlib version
+if tuple(map(int, matplotlib.__version__.split("."))) >= (3, 5):
+    # For matplotlib 3.5 and newer
+    from matplotlib import colormaps
+
+    register_cmap = colormaps.register
+else:
+    # For older versions of matplotlib
+    from matplotlib import cm
+
+    register_cmap = cm.register_cmap
+
 from numpy import load as np_load
 from matplotlib import font_manager
 
